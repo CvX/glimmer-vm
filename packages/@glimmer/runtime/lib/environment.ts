@@ -267,9 +267,13 @@ export class Program {
   private opcodes: number[] = [];
   private _offset = 0;
   private _opcode: Opcode;
+  public constants: Constants;
+  private freeable: number[] = [];
+  private table: number[] = [];
 
   constructor() {
     this._opcode = new Opcode(this.opcodes);
+    this.constants = new Constants();
   }
 
   get next(): number {
@@ -299,6 +303,30 @@ export class Program {
     this.opcodes[this._offset++] = op2;
     this.opcodes[this._offset++] = op3;
     return offset;
+  }
+
+  free(ptr: number) {
+    if (ptr === 0) {
+      this.freeable.shift();
+      this.table.shift();
+    } else if (ptr === this.freeable.length - 1) {
+      this.freeable.pop();
+      this.table.pop();
+    } else {
+      let freeRange = this.freeable.length - ptr;
+      let tableRange = this.table.length - this.table.indexOf(ptr);
+
+      for (let i = 0, free = ptr; i < freeRange; i++, free++) {
+        this.freeable[free] = this.freeable[free + 1];
+      }
+
+      for (let i = 0, free = ptr; i < tableRange; i++, free++) {
+        this.table[free] = this.table[free + 1];
+      }
+
+      this.freeable.length = this.freeable.length - 1;
+      this.table.length = this.table.length - 1;
+    }
   }
 }
 

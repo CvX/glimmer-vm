@@ -208,7 +208,7 @@ export default class VM implements PublicVM {
     private elementStack: ElementStack,
   ) {
     this.env = env;
-    this.constants = env.constants;
+    this.constants = env.program.constants;
     this.elementStack = elementStack;
     this.scopeStack.push(scope);
     this.dynamicScopeStack.push(dynamicScope);

@@ -64,7 +64,7 @@ export abstract class BasicOpcodeBuilder {
   private labelsStack = new Stack<Labels>();
 
   constructor(public env: Environment, public meta: CompilationMeta, public program: Program) {
-    this.constants = env.constants;
+    this.constants = env.program.constants;
     this.start = program.next;
   }
 

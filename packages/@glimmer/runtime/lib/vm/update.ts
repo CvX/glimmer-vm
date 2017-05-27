@@ -34,7 +34,7 @@ export default class UpdatingVM {
 
   constructor(env: Environment, { alwaysRevalidate = false }) {
     this.env = env;
-    this.constants = env.constants;
+    this.constants = env.program.constants;
     this.dom = env.getDOM();
     this.alwaysRevalidate = alwaysRevalidate;
   }
