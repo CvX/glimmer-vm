@@ -305,28 +305,39 @@ export class Program {
     return offset;
   }
 
-  free(ptr: number) {
-    if (ptr === 0) {
-      this.freeable.shift();
-      this.table.shift();
-    } else if (ptr === this.freeable.length - 1) {
-      this.freeable.pop();
-      this.table.pop();
-    } else {
-      let freeRange = this.freeable.length - ptr;
-      let tableRange = this.table.length - this.table.indexOf(ptr);
+  get(handle: number) {
+    let value = this.freeable[this.table[handle]];
+    expect(value, 'Bad access: handler already released');
+    return value;
+  }
 
-      for (let i = 0, free = ptr; i < freeRange; i++, free++) {
-        this.freeable[free] = this.freeable[free + 1];
+  alloc(item: any) {
+    let concreteHandle = this.freeable.length;
+    let handle = this.table.length;
+    this.freeable.push(item);
+    this.table.push(concreteHandle);
+    return handle;
+  }
+
+  free(handle: number) {
+    let freeableRange = this.freeable.length - handle;
+    let tableRange = (this.table.length - handle);
+    let addr = this.table[handle];
+
+    this.table[handle] = -1;
+
+    for (let i = 0; i < tableRange; i++) {
+      let value = this.table[handle + i] - 1;
+      if (value >= 0) {
+        this.table[handle + i] = value;
       }
-
-      for (let i = 0, free = ptr; i < tableRange; i++, free++) {
-        this.table[free] = this.table[free + 1];
-      }
-
-      this.freeable.length = this.freeable.length - 1;
-      this.table.length = this.table.length - 1;
     }
+
+    for (let i = 0; i < freeableRange; i++) {
+      this.freeable[addr] = this.freeable[++addr];
+    }
+
+    this.freeable.length = this.freeable.length - 1;
   }
 }
 
