@@ -319,6 +319,20 @@ export class Program {
     return handle;
   }
 
+
+  /*
+    IMPORTANT:
+    A handle is just a position in the table.
+    The table holds on to the concrete handles
+    to the items in the freeable memory.
+
+    TABLE VALUES ARE RE-WRITTEN AFTER THIS!
+
+    The handler that is returned from alloc gurantees
+    that it will point at the correct part of memory,
+    but it's actual address is subjet to change due
+    to the fact we do compaction.
+  */
   free(handle: number) {
     let freeableRange = this.freeable.length - handle;
     let tableRange = (this.table.length - handle);
@@ -333,10 +347,12 @@ export class Program {
       }
     }
 
+    // compact from the address to the end
     for (let i = 0; i < freeableRange; i++) {
       this.freeable[addr] = this.freeable[++addr];
     }
 
+    // the last item can now be released
     this.freeable.length = this.freeable.length - 1;
   }
 }
