@@ -347,9 +347,14 @@ export class Program {
       }
     }
 
-    // compact from the address to the end
-    for (let i = 0; i < freeableRange; i++) {
-      this.freeable[addr] = this.freeable[++addr];
+    if (freeableRange === 0) {
+      // 2 items in the array left, free 0 and shift over 1
+      this.freeable[addr] = this.freeable[addr + 1];
+    } else {
+      // compact from the address to the end
+      for (let i = 0; i < freeableRange; i++) {
+        this.freeable[addr] = this.freeable[++addr];
+      }
     }
 
     // the last item can now be released
